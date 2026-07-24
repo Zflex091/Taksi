@@ -585,7 +585,7 @@ export default function App() {
     .toUpperCase();
 
 const emailResponse = await fetch(
-  "https://formsubmit.co/ajax/TAVO-GMAIL@gmail.com",
+  "https://formsubmit.co/ajax/advserviceslt@gmail.com",
   {
     method: "POST",
     headers: {
