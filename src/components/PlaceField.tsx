@@ -2,6 +2,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type ChangeEvent,
   type KeyboardEvent,
 } from "react";
 import {
@@ -9,9 +10,10 @@ import {
   LoaderCircle,
   MapPin,
 } from "lucide-react";
+
 import type { Place } from "../types";
 
-type PlaceFieldProps = {
+type Props = {
   label: string;
   placeholder: string;
   value: Place | null;
@@ -27,70 +29,46 @@ export default function PlaceField({
   placeholder,
   value,
   onChange,
-}: PlaceFieldProps) {
+}: Props) {
   const [query, setQuery] = useState(value?.label ?? "");
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
   const [activeIndex, setActiveIndex] = useState(-1);
 
-  const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const abortControllerRef = useRef<AbortController | null>(
-    null
-  );
+  const abortControllerRef =
+    useRef<AbortController | null>(null);
 
   useEffect(() => {
-    if (value && value.label !== query) {
+    if (value?.label && value.label !== query) {
       setQuery(value.label);
     }
   }, [value]);
 
   useEffect(() => {
-    function handleOutsideClick(event: MouseEvent) {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(event.target as Node)
-      ) {
-        setDropdownOpen(false);
-        setActiveIndex(-1);
-      }
-    }
+    const searchQuery = query.trim();
 
-    document.addEventListener("mousedown", handleOutsideClick);
-
-    return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleOutsideClick
-      );
-    };
-  }, []);
-
-  useEffect(() => {
-    const trimmedQuery = query.trim();
-
-    // Pasirinktas adresas – naujos paieškos nebereikia.
     if (value?.label === query) {
       setPlaces([]);
-      setDropdownOpen(false);
       setError("");
+      setOpen(false);
       setLoading(false);
       return;
     }
 
-    // Paieška pradedama nuo 2 simbolių.
-    if (trimmedQuery.length < 2) {
+    if (searchQuery.length < 2) {
       abortControllerRef.current?.abort();
+
       setPlaces([]);
-      setDropdownOpen(false);
       setError("");
+      setOpen(false);
       setLoading(false);
       setActiveIndex(-1);
       return;
     }
 
-    const timeoutId = window.setTimeout(async () => {
+    const timeout = window.setTimeout(async () => {
       abortControllerRef.current?.abort();
 
       const controller = new AbortController();
@@ -98,33 +76,36 @@ export default function PlaceField({
 
       setLoading(true);
       setError("");
-      setActiveIndex(-1);
+      setOpen(true);
 
       try {
         const response = await fetch(
-          `/api/places?q=${encodeURIComponent(trimmedQuery)}`,
+          `/api/places?q=${encodeURIComponent(
+            searchQuery,
+          )}`,
           {
             method: "GET",
             headers: {
               Accept: "application/json",
             },
             signal: controller.signal,
-          }
+            cache: "no-store",
+          },
         );
 
         const contentType =
           response.headers.get("content-type") ?? "";
 
         if (!contentType.includes("application/json")) {
-          const responseText = await response.text();
+          const text = await response.text();
 
           console.error(
             "Adresų API grąžino ne JSON:",
-            responseText
+            text,
           );
 
           throw new Error(
-            "Serveris grąžino netinkamą atsakymą."
+            "Adresų serveris grąžino netinkamą atsakymą.",
           );
         }
 
@@ -133,33 +114,33 @@ export default function PlaceField({
           | ApiError;
 
         if (!response.ok) {
-          const apiError = result as ApiError;
-
           throw new Error(
-            apiError.error ||
-              `Adresų serverio klaida (${response.status}).`
+            Array.isArray(result)
+              ? "Adresų paieška nepavyko."
+              : result.error ||
+                  `Adresų serverio klaida (${response.status}).`,
           );
         }
 
         if (!Array.isArray(result)) {
           throw new Error(
-            "Serveris grąžino netinkamą adresų sąrašą."
+            "Gautas netinkamas adresų sąrašas.",
           );
         }
 
         const validPlaces = result.filter(
           (place): place is Place =>
             typeof place.label === "string" &&
-            typeof place.lat === "number" &&
-            typeof place.lon === "number"
+            Number.isFinite(place.lat) &&
+            Number.isFinite(place.lon),
         );
 
         setPlaces(validPlaces);
-        setDropdownOpen(true);
+        setOpen(true);
 
         if (validPlaces.length === 0) {
           setError(
-            "Adresų nerasta. Įveskite tikslesnį adresą."
+            "Adresų nerasta. Įveskite tikslesnį adresą.",
           );
         }
       } catch (caughtError) {
@@ -170,98 +151,109 @@ export default function PlaceField({
           return;
         }
 
-        const message =
-          caughtError instanceof Error
-            ? caughtError.message
-            : "Adresų paieška nepavyko.";
-
-        console.error("Adresų paieškos klaida:", caughtError);
+        console.error(
+          "Adresų paieškos klaida:",
+          caughtError,
+        );
 
         setPlaces([]);
-        setError(message);
-        setDropdownOpen(true);
+        setOpen(true);
+        setError(
+          caughtError instanceof Error
+            ? caughtError.message
+            : "Adresų paieška nepavyko.",
+        );
       } finally {
         if (!controller.signal.aborted) {
           setLoading(false);
         }
       }
-    }, 500);
+    }, 450);
 
     return () => {
-      window.clearTimeout(timeoutId);
+      window.clearTimeout(timeout);
     };
-  }, [query, value]);
+  }, [query, value?.label]);
 
-  function handleInputChange(
-    event: React.ChangeEvent<HTMLInputElement>
+  function handleChange(
+    event: ChangeEvent<HTMLInputElement>,
   ) {
-    const newValue = event.target.value;
+    const newQuery = event.target.value;
 
-    setQuery(newValue);
-    onChange(null);
+    setQuery(newQuery);
+    setPlaces([]);
     setError("");
     setActiveIndex(-1);
 
-    if (newValue.trim().length >= 2) {
-      setDropdownOpen(true);
+    onChange(null);
+
+    if (newQuery.trim().length >= 2) {
+      setOpen(true);
     } else {
-      setDropdownOpen(false);
+      setOpen(false);
     }
   }
 
   function selectPlace(place: Place) {
+    abortControllerRef.current?.abort();
+
     setQuery(place.label);
-    onChange(place);
     setPlaces([]);
     setError("");
-    setDropdownOpen(false);
+    setOpen(false);
+    setLoading(false);
     setActiveIndex(-1);
+
+    onChange(place);
   }
 
   function handleKeyDown(
-    event: KeyboardEvent<HTMLInputElement>
+    event: KeyboardEvent<HTMLInputElement>,
   ) {
-    if (!dropdownOpen || places.length === 0) {
+    if (!open || places.length === 0) {
       return;
     }
 
     if (event.key === "ArrowDown") {
       event.preventDefault();
 
-      setActiveIndex((currentIndex) =>
-        currentIndex >= places.length - 1
+      setActiveIndex((current) =>
+        current >= places.length - 1
           ? 0
-          : currentIndex + 1
+          : current + 1,
       );
     }
 
     if (event.key === "ArrowUp") {
       event.preventDefault();
 
-      setActiveIndex((currentIndex) =>
-        currentIndex <= 0
+      setActiveIndex((current) =>
+        current <= 0
           ? places.length - 1
-          : currentIndex - 1
+          : current - 1,
       );
     }
 
-    if (event.key === "Enter" && activeIndex >= 0) {
+    if (
+      event.key === "Enter" &&
+      activeIndex >= 0
+    ) {
       event.preventDefault();
       selectPlace(places[activeIndex]);
     }
 
     if (event.key === "Escape") {
-      setDropdownOpen(false);
+      setOpen(false);
       setActiveIndex(-1);
     }
   }
 
   return (
-    <div className="field-wrap" ref={wrapperRef}>
+    <div className="field-wrap place-field">
       <label>{label}</label>
 
       <div className="input-icon">
-        <MapPin size={19} aria-hidden="true" />
+        <MapPin aria-hidden="true" />
 
         <input
           type="text"
@@ -270,62 +262,62 @@ export default function PlaceField({
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="none"
-          inputMode="search"
           spellCheck={false}
-          onChange={handleInputChange}
+          inputMode="search"
+          onChange={handleChange}
           onKeyDown={handleKeyDown}
           onFocus={() => {
-            if (
-              query.trim().length >= 2 &&
-              (places.length > 0 || error)
-            ) {
-              setDropdownOpen(true);
+            if (query.trim().length >= 2) {
+              setOpen(true);
             }
           }}
           aria-autocomplete="list"
-          aria-expanded={dropdownOpen}
+          aria-expanded={open}
         />
 
         {loading && (
           <LoaderCircle
             className="field-loader"
-            size={18}
             aria-label="Ieškoma"
           />
         )}
       </div>
 
-      {dropdownOpen && (
-        <div className="suggestions" role="listbox">
-          {error ? (
+      {open && (
+        <div
+          className="suggestions suggestions-inline"
+          role="listbox"
+        >
+          {loading && places.length === 0 ? (
+            <div className="suggestion-status">
+              <LoaderCircle className="spin" />
+              <span>Ieškoma adresų...</span>
+            </div>
+          ) : error ? (
             <div className="suggestion-error">
-              <AlertCircle size={17} />
+              <AlertCircle />
               <span>{error}</span>
             </div>
           ) : (
             places.map((place, index) => (
               <button
-  type="button"
-  role="option"
-  aria-selected={activeIndex === index}
-  className={
-    activeIndex === index
-      ? "suggestion-active"
-      : ""
-  }
-  key={`${place.lat}-${place.lon}-${index}`}
-  onMouseDown={(event) => {
-    event.preventDefault();
-  }}
-  onTouchStart={(event) => {
-    event.preventDefault();
-    selectPlace(place);
-  }}
-  onClick={() => selectPlace(place)}
->
-  <MapPin size={17} aria-hidden="true" />
-  <span>{place.label}</span>
-</button>
+                type="button"
+                role="option"
+                aria-selected={activeIndex === index}
+                className={
+                  activeIndex === index
+                    ? "suggestion-active"
+                    : ""
+                }
+                key={`${place.lat}-${place.lon}-${index}`}
+                onPointerDown={(event) => {
+                  event.preventDefault();
+                  selectPlace(place);
+                }}
+              >
+                <MapPin aria-hidden="true" />
+                <span>{place.label}</span>
+              </button>
             ))
           )}
         </div>
