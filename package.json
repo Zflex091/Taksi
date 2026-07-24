@@ -20,9 +20,9 @@
     "@types/node": "^22.10.2",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
+    "@vercel/node": "^5.3.13",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "~5.7.2",
-    "vite": "^6.0.5",
-    "@vercel/node": "^5.3.13"
+    "vite": "^6.0.5"
   }
 }
