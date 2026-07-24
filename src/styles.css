@@ -2101,3 +2101,64 @@ input[type="time"] {
     padding: 13px;
   }
 }
+/* iPhone date/time laukų lygiavimas į kairę */
+
+input[type="date"],
+input[type="time"] {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="date"]::-webkit-date-and-time-value,
+input[type="time"]::-webkit-date-and-time-value {
+  text-align: left;
+  margin: 0;
+  padding: 0;
+}
+
+input[type="date"]::-webkit-datetime-edit,
+input[type="time"]::-webkit-datetime-edit {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 14px;
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .input-icon input[type="date"],
+  .input-icon input[type="time"] {
+    padding-left: 45px;
+    padding-right: 44px;
+    text-align: left;
+    font-size: 16px;
+  }
+
+  .input-icon input[type="date"]::-webkit-date-and-time-value,
+  .input-icon input[type="time"]::-webkit-date-and-time-value {
+    text-align: left;
+  }
+}
+@supports (-webkit-touch-callout: none) {
+  input[type="date"],
+  input[type="time"] {
+    display: block;
+    justify-content: flex-start;
+  }
+
+  input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+  input[type="time"]::-webkit-datetime-edit-fields-wrapper {
+    display: flex;
+    justify-content: flex-start;
+  }
+}
