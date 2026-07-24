@@ -38,8 +38,8 @@ import type {
 
 type Language = "lt" | "en";
 
-const DRIVER_PHONE = "+370 670 0000";
-const DRIVER_PHONE_LINK = "+37067000000";
+const DRIVER_PHONE = "+370 662 15037";
+const DRIVER_PHONE_LINK = "+370 662 15037";
 const VEHICLE_NAME = "Opel Astra";
 const VEHICLE_PLATE = "T21796";
 
@@ -109,7 +109,7 @@ const translations = {
 
     firstNamePlaceholder: "Vardas",
     lastNamePlaceholder: "Pavardė",
-    phonePlaceholder: "+370 6xx xxxxx",
+    phonePlaceholder: "+370 662 15037",
 
     contactError:
       "Įveskite vardą, pavardę ir galiojantį telefono numerį.",
@@ -252,7 +252,7 @@ const translations = {
 
     firstNamePlaceholder: "First name",
     lastNamePlaceholder: "Last name",
-    phonePlaceholder: "+370 6xx xxxxx",
+    phonePlaceholder: "+370 662 15037",
 
     contactError:
       "Enter your first name, last name and a valid phone number.",
