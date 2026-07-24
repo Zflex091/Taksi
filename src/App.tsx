@@ -577,24 +577,49 @@ export default function App() {
         return;
       }
 
-      const response = await fetch("/api/reservations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(booking),
-      });
+      const bookingCode =
+  "RK-" +
+  Math.random()
+    .toString(36)
+    .substring(2, 9)
+    .toUpperCase();
 
-      const data = await response.json();
+const emailResponse = await fetch(
+  "https://formsubmit.co/ajax/TAVO-GMAIL@gmail.com",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      _subject: `Nauja rezervacija ${bookingCode}`,
+      _template: "table",
+      _captcha: "false",
 
-      if (!response.ok) {
-        throw new Error(
-          data.error || t.reservationError,
-        );
-      }
+      "Paėmimo data": booking.date,
+      "Paėmimo laikas": booking.time,
+      "Paėmimo vieta": booking.pickup?.label ?? "",
+      "Kelionės tikslas":
+        booking.destination?.label ?? "",
+      Kaina: `${booking.price.toFixed(2)} €`,
+      "Apmokėjimo būdas": "Automobilyje",
+      Vardas: booking.firstName,
+      Pavardė: booking.lastName,
+      "Telefono numeris": booking.phone,
+      "Rezervacijos numeris": bookingCode,
+    }),
+  },
+);
 
-      setDone(data.bookingCode);
-    } catch (caughtError) {
+if (!emailResponse.ok) {
+  throw new Error(
+    "Nepavyko išsiųsti rezervacijos į el. paštą.",
+  );
+}
+
+setDone(bookingCode);
+} catch (caughtError) {
       setError(
         caughtError instanceof Error
           ? caughtError.message
