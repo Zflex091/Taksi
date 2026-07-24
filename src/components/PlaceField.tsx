@@ -268,6 +268,9 @@ export default function PlaceField({
           value={query}
           placeholder={placeholder}
           autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
+          inputMode="search"
           spellCheck={false}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
@@ -302,26 +305,27 @@ export default function PlaceField({
           ) : (
             places.map((place, index) => (
               <button
-                type="button"
-                role="option"
-                aria-selected={activeIndex === index}
-                className={
-                  activeIndex === index
-                    ? "suggestion-active"
-                    : ""
-                }
-                key={`${place.lat}-${place.lon}-${index}`}
-                onMouseDown={(event) => {
-                  // Neleidžia input laukui prarasti fokusą
-                  // prieš pasirenkant adresą.
-                  event.preventDefault();
-                }}
-                onClick={() => selectPlace(place)}
-              >
-                <MapPin size={17} aria-hidden="true" />
-
-                <span>{place.label}</span>
-              </button>
+  type="button"
+  role="option"
+  aria-selected={activeIndex === index}
+  className={
+    activeIndex === index
+      ? "suggestion-active"
+      : ""
+  }
+  key={`${place.lat}-${place.lon}-${index}`}
+  onMouseDown={(event) => {
+    event.preventDefault();
+  }}
+  onTouchStart={(event) => {
+    event.preventDefault();
+    selectPlace(place);
+  }}
+  onClick={() => selectPlace(place)}
+>
+  <MapPin size={17} aria-hidden="true" />
+  <span>{place.label}</span>
+</button>
             ))
           )}
         </div>
