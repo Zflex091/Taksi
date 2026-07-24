@@ -1873,3 +1873,55 @@ footer {
     transition-duration: 0.01ms !important;
   }
 }
+input[type="date"],
+input[type="time"] {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.field-wrap,
+.input-icon,
+.grid2 {
+  min-width: 0;
+}
+
+.input-icon {
+  width: 100%;
+}
+
+.input-icon input {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  input[type="date"],
+  input[type="time"] {
+    width: 100%;
+    min-width: 0;
+    padding-right: 14px;
+    font-size: 16px;
+  }
+
+  .grid2 {
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .field-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .input-icon {
+    width: 100%;
+    max-width: 100%;
+  }
+}
