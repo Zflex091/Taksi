@@ -38,6 +38,11 @@ import type {
 
 type Language = "lt" | "en";
 
+const DRIVER_PHONE = "+370 670 0000";
+const DRIVER_PHONE_LINK = "+37067000000";
+const VEHICLE_NAME = "Opel Astra";
+const VEHICLE_PLATE = "T21796";
+
 const translations = {
   lt: {
     pageTitle: "ADV services – privatus pervežimas",
@@ -134,13 +139,20 @@ const translations = {
     confirmBooking: "Patvirtinti rezervaciją",
 
     stripeError:
-      "Stripe dar neprijungtas. Įrašykite STRIPE_SECRET_KEY į Vercel aplinkos kintamuosius.",
+      "Nepavyko pradėti Stripe mokėjimo.",
     reservationError: "Rezervacija nepavyko.",
 
-    reservationAccepted: "Rezervacija priimta",
+    reservationAccepted: "Rezervacija patvirtinta",
     bookingNumber: "Jūsų rezervacijos numeris",
-    contactLater:
-      "Su jumis susisieksime nurodytu telefono numeriu.",
+
+    tripReady: "Jūsų kelionė paruošta",
+    waitingAt: "Jūsų lauks",
+    pickupTimeLabel: "Paėmimo laikas",
+    vehicle: "Automobilis",
+    plate: "Valstybinis numeris",
+    supportTitle: "Kilus nesklandumams susisiekite",
+    supportText:
+      "Jeigu pasikeistų kelionės aplinkybės arba nepavyktų rasti automobilio, paskambinkite mums.",
 
     greenCourse: "Žalias kursas",
     newCars: "Nauji automobiliai",
@@ -271,13 +283,21 @@ const translations = {
     confirmBooking: "Confirm reservation",
 
     stripeError:
-      "Stripe is not connected yet. Add STRIPE_SECRET_KEY to the Vercel environment variables.",
-    reservationError: "The reservation could not be completed.",
+      "Unable to start the Stripe payment.",
+    reservationError:
+      "The reservation could not be completed.",
 
     reservationAccepted: "Reservation confirmed",
     bookingNumber: "Your reservation number",
-    contactLater:
-      "We will contact you using the phone number provided.",
+
+    tripReady: "Your journey is ready",
+    waitingAt: "Your vehicle will be waiting",
+    pickupTimeLabel: "Pickup time",
+    vehicle: "Vehicle",
+    plate: "License plate",
+    supportTitle: "Need assistance?",
+    supportText:
+      "If your travel plans change or you cannot find the vehicle, please call us.",
 
     greenCourse: "Green travel",
     newCars: "New vehicles",
@@ -336,7 +356,9 @@ function nextAllowedTime(date: string) {
     return "00:00";
   }
 
-  const nextTime = new Date(Date.now() + 2 * 60 * 60 * 1000);
+  const nextTime = new Date(
+    Date.now() + 2 * 60 * 60 * 1000,
+  );
 
   return `${String(nextTime.getHours()).padStart(
     2,
@@ -376,7 +398,9 @@ function Counter({
         <button
           type="button"
           aria-label={`${decreaseLabel} ${label}`}
-          onClick={() => onChange(Math.max(min, value - 1))}
+          onClick={() =>
+            onChange(Math.max(min, value - 1))
+          }
         >
           <Minus />
         </button>
@@ -386,7 +410,9 @@ function Counter({
         <button
           type="button"
           aria-label={`${increaseLabel} ${label}`}
-          onClick={() => onChange(Math.min(max, value + 1))}
+          onClick={() =>
+            onChange(Math.min(max, value + 1))
+          }
         >
           <Plus />
         </button>
@@ -396,17 +422,22 @@ function Counter({
 }
 
 export default function App() {
-  const [language, setLanguage] = useState<Language>(() => {
-    const savedLanguage = localStorage.getItem("adv-language");
+  const [language, setLanguage] =
+    useState<Language>(() => {
+      const savedLanguage = localStorage.getItem(
+        "adv-language",
+      );
 
-    return savedLanguage === "en" ? "en" : "lt";
-  });
+      return savedLanguage === "en" ? "en" : "lt";
+    });
 
   const [booking, setBooking] =
     useState<Booking>(initialBooking);
   const [step, setStep] = useState(1);
-  const [routeLoading, setRouteLoading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const [routeLoading, setRouteLoading] =
+    useState(false);
+  const [submitting, setSubmitting] =
+    useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState("");
 
@@ -533,7 +564,13 @@ export default function App() {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.error || t.stripeError);
+          throw new Error(
+            data.error || t.stripeError,
+          );
+        }
+
+        if (!data.url) {
+          throw new Error(t.stripeError);
         }
 
         window.location.href = data.url;
@@ -621,10 +658,10 @@ export default function App() {
 
           <a
             className="phone"
-            href="tel:+37060000000"
+            href={`tel:${DRIVER_PHONE_LINK}`}
           >
             <Phone />
-            <span>+370 600 00000</span>
+            <span>{DRIVER_PHONE}</span>
           </a>
         </div>
       </header>
@@ -733,7 +770,54 @@ export default function App() {
                 <h2>{t.reservationAccepted}</h2>
                 <p>{t.bookingNumber}</p>
                 <strong>{done}</strong>
-                <span>{t.contactLater}</span>
+
+                <div className="driver-info">
+                  <div className="driver-info-heading">
+                    <CarFront />
+
+                    <div>
+                      <small>{t.tripReady}</small>
+                      <h3>
+                        {booking.time} {t.waitingAt}{" "}
+                        {VEHICLE_NAME}
+                      </h3>
+                    </div>
+                  </div>
+
+                  <div className="driver-card">
+                    <div className="driver-row">
+                      <span>{t.pickupTimeLabel}</span>
+                      <b>{booking.time}</b>
+                    </div>
+
+                    <div className="driver-row">
+                      <span>{t.vehicle}</span>
+                      <b>{VEHICLE_NAME}</b>
+                    </div>
+
+                    <div className="driver-row">
+                      <span>{t.plate}</span>
+                      <b className="vehicle-plate">
+                        {VEHICLE_PLATE}
+                      </b>
+                    </div>
+                  </div>
+
+                  <a
+                    className="support-box"
+                    href={`tel:${DRIVER_PHONE_LINK}`}
+                  >
+                    <div className="support-icon">
+                      <Phone />
+                    </div>
+
+                    <span>
+                      <b>{t.supportTitle}</b>
+                      <small>{t.supportText}</small>
+                      <strong>{DRIVER_PHONE}</strong>
+                    </span>
+                  </a>
+                </div>
               </motion.div>
             ) : step === 1 ? (
               <motion.div
