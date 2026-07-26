@@ -42,8 +42,8 @@ import type {
 
 type Language = "lt" | "en";
 
-const CONTACT_PHONE = "+370 662 26037";
-const CONTACT_PHONE_LINK = "+37066226037";
+const CONTACT_PHONE = "+370 662 15037";
+const CONTACT_PHONE_LINK = "+37066215037";
 const CONTACT_EMAIL = "advserviceslt@gmail.com";
 const WHATSAPP_LINK =
   "https://wa.me/37066226037";
