@@ -46,7 +46,7 @@ const CONTACT_PHONE = "+370 662 15037";
 const CONTACT_PHONE_LINK = "+37066215037";
 const CONTACT_EMAIL = "advserviceslt@gmail.com";
 const WHATSAPP_LINK =
-  "https://wa.me/37066226037";
+  "https://wa.me/37066215037";
 const DRIVER_PHONE_LINK = CONTACT_PHONE_LINK;
 const DRIVER_PHONE = CONTACT_PHONE
 const VEHICLE_NAME = "Opel Astra";
