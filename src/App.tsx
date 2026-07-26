@@ -58,8 +58,8 @@ const translations = {
       "Privatus pervežimas naujais automobiliais, naudojant atsinaujinančius degalus. Kainą matote dar prieš rezervaciją.",
 
     pricePerKm: "1,90 € / km",
-    minimumDistance: "Min. 7 km",
-    maxPassengers: "Iki 3 keleivių",
+    minimumDistance: "Min. 10 km",
+    maxPassengers: "Iki 4 keleivių",
 
     estimatedPrice: "Orientacinė kaina",
     airportCityPrice:
@@ -176,7 +176,7 @@ const translations = {
     cleanerJourney: "Švaresnė kelionė",
 
     newCarsDescription:
-      "Iki 3 keleivių ir 3 lagaminų",
+      "Iki 4 keleivių ir 3 lagaminų",
     transparentPrice: "Skaidri kaina",
     transparentPriceDescription:
       "Matoma prieš užsakymą",
@@ -201,8 +201,8 @@ const translations = {
       "Private transfers in newer vehicles using renewable fuel. See the full price before making a reservation.",
 
     pricePerKm: "€1.90 / km",
-    minimumDistance: "Minimum 7 km",
-    maxPassengers: "Up to 3 passengers",
+    minimumDistance: "Minimum 10 km",
+    maxPassengers: "Up to 4 passengers",
 
     estimatedPrice: "Estimated price",
     airportCityPrice:
@@ -501,7 +501,7 @@ export default function App() {
       }
 
       const billableDistance = Math.max(
-        7,
+        10,
         data.distanceKm,
       );
 
@@ -510,7 +510,7 @@ export default function App() {
         distanceKm: data.distanceKm,
         durationMin: data.durationMin,
         price: Number(
-          (billableDistance * 1.9).toFixed(2),
+          (3 + billableDistance * 1.9).toFixed(2),
         ),
       }));
 
@@ -937,7 +937,7 @@ setDone(bookingCode);
                     onChange={(value) =>
                       update("passengers", value)
                     }
-                    max={3}
+                    max={4}
                     icon={<UserRound />}
                     label={t.passengers}
                     decreaseLabel={t.decrease}
@@ -1141,12 +1141,13 @@ setDone(bookingCode);
                   </strong>
 
                   <small>
-                    {Math.max(
-                      7,
-                      booking.distanceKm,
-                    ).toFixed(1)}{" "}
-                    {t.chargedKm} × 1,90 €
-                  </small>
+  3 € +{" "}
+  {Math.max(
+    10,
+    booking.distanceKm,
+  ).toFixed(1)}{" "}
+  {t.chargedKm} × 1,90 €
+</small>
                 </div>
 
                 <PaymentChoice
