@@ -27,6 +27,10 @@ import {
   ShieldCheck,
   UserRound,
   Zap,
+  Mail,
+MessageCircle,
+WalletCards,
+
 } from "lucide-react";
 
 import PlaceField from "./components/PlaceField";
@@ -38,24 +42,29 @@ import type {
 
 type Language = "lt" | "en";
 
-const DRIVER_PHONE = "+370 662 15037";
-const DRIVER_PHONE_LINK = "+370 662 15037";
+const CONTACT_PHONE = "+370 662 26037";
+const CONTACT_PHONE_LINK = "+37066226037";
+const CONTACT_EMAIL = "advserviceslt@gmail.com";
+const WHATSAPP_LINK =
+  "https://wa.me/37066226037";
+const DRIVER_PHONE_LINK = CONTACT_PHONE_LINK;
+const DRIVER_PHONE = CONTACT_PHONE
 const VEHICLE_NAME = "Opel Astra";
 const VEHICLE_PLATE = "T21796";
 
 const translations = {
   lt: {
-    pageTitle: "ADV services – privatus pervežimas",
+    pageTitle: "Kaunas Airport Taxi | ADV Services",
 
     route: "Maršrutas",
     contacts: "Kontaktai",
     payment: "Apmokėjimas",
 
     eyebrow: "Tvaresnė kelionė po Kauną",
-    heroTitleFirst: "Patogiai. Saugiai.",
-    heroTitleSecond: "Atsakingiau.",
+    heroTitleFirst: "Book Your Taxi",
+heroTitleSecond: "Airport Taxi Online",
     heroDescription:
-      "Privatus pervežimas naujais automobiliais, naudojant atsinaujinančius degalus. Kainą matote dar prieš rezervaciją.",
+  "Užsisakykite Kauno oro uosto taksi internetu. Skaidri kelionės kaina, saugus atsiskaitymas ir galimybė mokėti internetu arba automobilyje.",
 
     pricePerKm: "1,90 € / km",
     minimumDistance: "Min. 10 km",
@@ -185,6 +194,18 @@ const translations = {
 
     footer:
       "Žalias kursas · Nauji automobiliai · Saugumas",
+
+      paymentOptionsTitle: "Patogūs atsiskaitymo būdai",
+paymentOptionsDescription:
+  "Pasirinkite jums patogiausią mokėjimo būdą.",
+payOnlineTitle: "Mokėkite internetu",
+payOnlineDescription:
+  "Saugus atsiskaitymas rezervuojant per Stripe.",
+payVehicleTitle: "Mokėkite automobilyje",
+payVehicleDescription:
+  "Kortele arba grynaisiais vairuotojui.",
+secureStripe: "Saugus Stripe mokėjimas",
+cardAndCash: "Kortelė ir grynieji",
   },
 
   en: {
@@ -195,10 +216,10 @@ const translations = {
     payment: "Payment",
 
     eyebrow: "A more sustainable journey in Kaunas",
-    heroTitleFirst: "Comfortable. Safe.",
-    heroTitleSecond: "More responsible.",
-    heroDescription:
-      "Private transfers in newer vehicles using renewable fuel. See the full price before making a reservation.",
+heroTitleFirst: "Book Your Taxi",
+heroTitleSecond: "Airport Taxi Online",
+   heroDescription:
+  "Book your Kaunas Airport Taxi online. Fixed pricing, secure payments and the option to pay online or directly in the vehicle.",
 
     pricePerKm: "€1.90 / km",
     minimumDistance: "Minimum 10 km",
@@ -330,6 +351,18 @@ const translations = {
 
     footer:
       "Green travel · New vehicles · Safety",
+
+      paymentOptionsTitle: "Flexible payment options",
+paymentOptionsDescription:
+  "Choose the payment method that suits you best.",
+payOnlineTitle: "Pay online",
+payOnlineDescription:
+  "Secure Stripe payment during your reservation.",
+payVehicleTitle: "Pay in the vehicle",
+payVehicleDescription:
+  "Pay the driver by card or cash.",
+secureStripe: "Secure Stripe payment",
+cardAndCash: "Card and cash",
   },
 } as const;
 
@@ -652,45 +685,60 @@ setDone(bookingCode);
         </a>
 
         <div className="header-actions">
-          <div
-            className="language-switcher"
-            aria-label="Language selection"
-          >
-            <button
-              type="button"
-              className={
-                language === "lt" ? "active" : ""
-              }
-              onClick={() => setLanguage("lt")}
-              aria-pressed={language === "lt"}
-            >
-              LT
-            </button>
+  <div
+    className="language-switcher"
+    aria-label="Language selection"
+  >
+    <button
+      type="button"
+      className={language === "lt" ? "active" : ""}
+      onClick={() => setLanguage("lt")}
+    >
+      LT
+    </button>
 
-            <span />
+    <span />
 
-            <button
-              type="button"
-              className={
-                language === "en" ? "active" : ""
-              }
-              onClick={() => setLanguage("en")}
-              aria-pressed={language === "en"}
-            >
-              EN
-            </button>
-          </div>
+    <button
+      type="button"
+      className={language === "en" ? "active" : ""}
+      onClick={() => setLanguage("en")}
+    >
+      EN
+    </button>
+  </div>
 
-          <a
-            className="phone"
-            href={`tel:${DRIVER_PHONE_LINK}`}
-          >
-            <Phone />
-            <span>{DRIVER_PHONE}</span>
-          </a>
-        </div>
-      </header>
+  <div className="header-contact-icons">
+    <a
+      className="header-contact-button whatsapp"
+      href={WHATSAPP_LINK}
+      target="_blank"
+      rel="noreferrer"
+      aria-label="WhatsApp"
+      title="WhatsApp"
+    >
+      <MessageCircle />
+    </a>
 
+    <a
+      className="header-contact-button email"
+      href={`mailto:${CONTACT_EMAIL}`}
+      aria-label="Email"
+      title={CONTACT_EMAIL}
+    >
+      <Mail />
+    </a>
+  </div>
+
+  <a
+    className="phone"
+    href={`tel:${CONTACT_PHONE_LINK}`}
+  >
+    <Phone />
+    <span>{CONTACT_PHONE}</span>
+  </a>
+</div>
+</header>
       <main id="top">
         <section className="hero-copy">
           <motion.div
@@ -745,6 +793,54 @@ setDone(bookingCode);
               <b>{t.airportCityPrice}</b>
             </span>
           </div>
+         <div className="hero-payment-card">
+  <div className="hero-payment-heading">
+    <div className="hero-payment-icon">
+      <WalletCards />
+    </div>
+
+    <div>
+      <small>{t.paymentOptionsTitle}</small>
+      <h3>{t.paymentOptionsDescription}</h3>
+    </div>
+  </div>
+
+  <div className="hero-payment-methods">
+    <div className="hero-payment-method">
+      <div className="payment-method-icon online">
+        <CreditCard />
+      </div>
+
+      <div>
+        <b>{t.payOnlineTitle}</b>
+        <span>{t.payOnlineDescription}</span>
+
+        <small>
+          <ShieldCheck />
+          {t.secureStripe}
+        </small>
+      </div>
+    </div>
+
+    <div className="hero-payment-divider" />
+
+    <div className="hero-payment-method">
+      <div className="payment-method-icon vehicle">
+        <Banknote />
+      </div>
+
+      <div>
+        <b>{t.payVehicleTitle}</b>
+        <span>{t.payVehicleDescription}</span>
+
+        <small>
+          <Check />
+          {t.cardAndCash}
+        </small>
+      </div>
+    </div>
+  </div>
+</div> 
         </section>
 
         <motion.section
@@ -1313,13 +1409,43 @@ setDone(bookingCode);
         </div>
       </section>
 
-      <footer>
-        © 2026 ADV services
-        <span>{t.footer}</span>
-      </footer>
+      <footer className="site-footer">
+  <div className="footer-brand">
+    <b>ADV Services</b>
+    <span>Kaunas Airport Taxi</span>
+  </div>
+
+  <div className="footer-contacts">
+    <a href={`tel:${CONTACT_PHONE_LINK}`}>
+      <Phone />
+      {CONTACT_PHONE}
+    </a>
+
+    <a href={`mailto:${CONTACT_EMAIL}`}>
+      <Mail />
+      {CONTACT_EMAIL}
+    </a>
+
+    <a
+      href={WHATSAPP_LINK}
+      target="_blank"
+      rel="noreferrer"
+    >
+      <MessageCircle />
+      WhatsApp
+    </a>
+  </div>
+
+  <div className="footer-bottom">
+    <span>© 2026 ADV Services</span>
+    <span>{t.footer}</span>
+  </div>
+</footer>
     </div>
+
   );
 }
+
 
 type PaymentChoiceProps = {
   value: PaymentMethod;
